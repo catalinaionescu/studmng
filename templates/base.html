@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Flavors&family=Noto+Sans+Lisu:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        nav {
+            background-color: #ce96a6;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px 10px;
+            padding-left:20px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            color: white;
+           
+        }
+
+        nav ul li {
+            margin: 0 10px; 
+            font-size:25px;
+            padding-top:10px;
+           
+        }
+
+        nav ul li a,
+        .nav-button {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 500;
+            border-radius: 5px;
+            transition: color 0.3s ease;
+            background-color: #ce96a6; /* Same color as navbar */
+            border: none; /* No border */
+            cursor: pointer;
+        }
+
+        nav ul li a:hover,
+        .nav-button:hover {
+            color: #581908; /* Change text color on hover */
+        }
+
+        .container {
+            margin-top: 60px; /* Adjusted to prevent content from being hidden behind the navbar */
+            padding: 20px;
+        }
+
+        .flashes {
+            list-style-type: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+
+        .flashes li {
+            background-color: #ffdddd;
+            color: #d8000c;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 6px solid #f44336;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 20px;
+            font-weight: 500;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            background-color: #291711; /* Same color as navbar */
+            transition: color 0.3s ease;
+            padding-right:20px;
+        }
+
+        .btn:hover {
+            color: #ffdd57; /* Change text color on hover */
+        }
+
+        .nav-right {
+            margin-left: auto;
+            font-size: 20px;
+            font-weight: 500; 
+            padding-right:30px;/* This makes the nav-right list push all the way to the right */
+        } .modal-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+            backdrop-filter: blur(8px); /* Blur effect */
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 50px;
+            max-width: 40%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+            width: 700px;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+        }
+
+        .custom-file-input-container {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center align file input */
+            margin-bottom: 20px; /* Add space below file input */
+        }
+
+        .custom-file-input {
+            width: 100%;
+            max-width: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .custom-file-input input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+        }
+
+        .custom-file-input::before {
+            content: attr(data-filename);
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        /* Center and style the form */
+         .edit-form-container input {
+        width: 300px; /* Set a specific width for all input fields */
+        max-width: 100%; /* Ensure input fields do not exceed their container */
+        margin: 10px 0; /* Adjust margin as needed */
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        text-align: center;
+    }
+
+        .edit-form-container label,
+        .edit-form-container input {
+            display: block;
+            width: 100%;
+            max-width: 500px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .edit-form-container input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            margin-left: auto; /* Center-align labels by giving them auto margin */
+            margin-right: auto;
+        }
+
+        .edit-form-container input:focus {
+            border-color: #ce96a6;
+            outline: none;
+            box-shadow: 0 0 5px rgba(206, 150, 166, 0.5);
+        }
+
+        .edit-form-container label {
+            text-align: center; /* Align labels to the left */
+            margin-left: auto; /* Center-align labels by giving them auto margin */
+            margin-right: auto; /* Center-align labels by giving them auto margin */
+            width: 100%; /* Make labels span the full width of the container */
+            max-width: 500px; /* Ensure labels do not exceed the width of input fields */
+        }
+        .btn1 {
+    display: block; /* Ensure button is block-level for center alignment */
+    width: 100%; /* Occupy full width of parent container */
+    max-width: 200px; /* Limit maximum width for better visual appearance */
+    margin: 20px auto; /* Center align horizontally with top and bottom margin */
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: 500;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    background-color: #291711; /* Same color as navbar */
+    transition: color 0.3s ease;
+}
+
+.btn1:hover {
+    color: #ffdd57; /* Change text color on hover */
+}
+
+    </style>
+</head>
+<body>
+    <nav>
+        <ul id="nav-items-left">
+            <!-- Left-aligned nav items will be dynamically updated based on session status -->
+        </ul>
+        <ul id="nav-items-right" class="nav-right">
+            <!-- Right-aligned nav items will be dynamically updated based on session status -->
+        </ul>
+    </nav>
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+     <script>
+        async function updateNav() {
+            const response = await fetch('{{ url_for("session_status") }}');
+            const data = await response.json();
+            const navItemsLeft = document.getElementById('nav-items-left');
+            const navItemsRight = document.getElementById('nav-items-right');
+            navItemsLeft.innerHTML = '';
+            navItemsRight.innerHTML = '';
+
+            if (data.logged_in) {
+                navItemsLeft.innerHTML += '<li><span>Bună, ' + data.username + '!</span></li>';
+                navItemsLeft.innerHTML += '<li><a href="{{ url_for("students") }}" class="nav-button">Studenți</a></li>';
+                navItemsLeft.innerHTML += '<li><button onclick="toggleAddStudentModal()" class="nav-button">Adaugă studenți</button></li>';
+                navItemsRight.innerHTML += '<li><a href="{{ url_for("logout") }}" class="nav-button">Deconectare</a></li>';
+            } else {
+                navItemsLeft.innerHTML += '<li><a href="{{ url_for("login") }}" class="nav-button">Login</a></li>';
+                navItemsRight.innerHTML += '<li><a href="{{ url_for("signup") }}" class="nav-button">Signup</a></li>';
+            }
+        }
+
+        async function manageHistory() {
+            const response = await fetch('{{ url_for("session_status") }}');
+            const data = await response.json();
+            const path = window.location.pathname;
+
+            if (data.logged_in && path !== '/students') {
+                window.history.replaceState({}, '', '/students');
+                window.location.href = '/students';
+            } else if (!data.logged_in && path === '/students') {
+                window.history.replaceState({}, '', '/login');
+                window.location.href = '/login';
+            }
+        }
+
+        window.onload = async function() {
+            await updateNav();
+            await manageHistory();
+        };
+
+        setInterval(async function() {
+            await updateNav();
+            await manageHistory();
+        }, 1000); // Changed interval to 1000 milliseconds (1 second)
+        function updateFileName() {
+            var input = document.getElementById("poza");
+            var fileName = input.files[0].name;
+            var maxLength = 50;
+
+            if (fileName.length > maxLength) {
+                var extension = fileName.substring(fileName.lastIndexOf('.'));
+                var baseName = fileName.substring(0, maxLength - extension.length - 3);
+                fileName = baseName + '...' + extension;
+            }
+
+            var fileInputContainer = document.getElementById("fileInputContainer");
+            fileInputContainer.setAttribute('data-filename', fileName);
+        }
+function toggleAddStudentModal() {
+        var modal = document.getElementById('addStudentModal');
+        if (modal.style.display === 'none' || modal.style.display === '') {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        } else {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    function closeModal(event) {
+        if (event.target === document.getElementById('addStudentModal')) {
+            toggleAddStudentModal();
+        }
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            toggleAddStudentModal();
+        }
+    });
+
+        document.getElementById('addStudentForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json()).then(result => {
+                if (result.success) {
+                    window.location.href = '{{ url_for("students") }}';
+                } else {
+                    for (const [field, message] of Object.entries(result.errors)) {
+                        document.getElementById(`${field}_error`).textContent = message;
+                    }
+                }
+            }).catch(error => console.error('Error adding student:', error));
+        });
+    </script>
+    <!-- Modal -->
+    <div class="modal-container" id="addStudentModal" onclick="closeModal(event)">
+        <div class="modal-content">
+            <span class="close" onclick="toggleAddStudentModal()">&times;</span>
+            <h2 style="text-align:center;">Adaugă Student</h2>
+            <form id="addStudentForm" method="post" action="{{ url_for('add_student') }}" enctype="multipart/form-data" class="edit-form-container">
+                <label for="nume">Nume:</label>
+                <input type="text" id="nume" name="nume" required>
+                <span class="error-message" id="nume_error"></span>
+                
+                <p>
+                    <label for="prenume">Prenume:</label> 
+                    <input type="text" id="prenume" name="prenume" required>
+                    <span class="error-message" id="prenume_error"></span>
+                </p>
+                <p>
+                    <label for="facultatea">Facultatea:</label> 
+                    <input type="text" id="facultatea" name="facultatea" required>
+                    <span class="error-message" id="facultatea_error"></span>
+                </p>
+                <p>
+                    <label for="specializarea">Specializarea:</label> 
+                    <input type="text" id="specializarea" name="specializarea" required>
+                    <span class="error-message" id="specializarea_error"></span>
+                </p>
+                <p>
+                    <label for="an">An:</label> 
+                    <input type="number" id="an" name="an" required>
+                    <span class="error-message" id="an_error"></span>
+                </p>
+                <p>
+                    <label for="grupa">Grupa:</label> 
+                    <input type="text" id="grupa" name="grupa" required>
+                    <span class="error-message" id="grupa_error"></span>
+                </p>
+                <p>
+                    <label for="data_nasterii">Data Nasterii:</label> 
+                    <input type="date" id="data_nasterii" name="data_nasterii" required>
+                    <span class="error-message" id="data_nasterii_error"></span>
+                </p>
+                <p>
+                    <label for="cnp">CNP:</label> 
+                    <input type="text" pattern="[0-9]{13}" maxlength="13" id="cnp" name="cnp" required>
+                    <span class="error-message" id="cnp_error"></span>
+                </p>
+                <p>
+                    <label for="numar_de_telefon">Numar de Telefon:</label> 
+                    <input type="text" id="numar_de_telefon" name="numar_de_telefon" required>
+                    <span class="error-message" id="numar_de_telefon_error"></span>
+                </p>
+                <p>
+                    <label for="email">Email:</label> 
+                    <input type="email" id="email" name="email" required>
+                    <span class="error-message" id="email_error"></span>
+                </p>
+                <p>
+                    <label for="adresa">Adresa:</label> 
+                    <input type="text" id="adresa" name="adresa" required>
+                    <span class="error-message" id="adresa_error"></span>
+                </p>
+                <p>
+                    <label for="cetatenie">Cetatenie:</label> 
+                    <input type="text" id="cetatenie" name="cetatenie" required>
+                    <span class="error-message" id="cetatenie_error"></span>
+                </p>
+                <p>
+                    <label for="etnie">Etnie:</label> 
+                    <input type="text" id="etnie" name="etnie" required>
+                    <span class="error-message" id="etnie_error"></span>
+                </p>
+                <p>
+                    <label for="photo" style="padding-bottom: 0px;">Fotografie:</label>
+                    
+                    <div class="custom-file-input-container">
+                        <div class="custom-file-input" id="fileInputContainer"style="text-align:center" data-filename="Alege un fișier...">
+                            <input type="file" id="poza" name="poza" accept="image/*" onchange="updateFileName()">
+                        </div>
+                    </div>
+                </p>
+                <button type="submit" class="btn1 btn-primary" style =" text-align: center,margin-left: auto, margin-right: auto;" />Adaugă Student</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

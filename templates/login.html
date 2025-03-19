@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background-color: #C0E5C8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Ensure the body takes full viewport height */
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        .center-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            background-color: #C0E5C8;
+            overflow: hidden; /* Prevents content overflow */
+        }
+
+        .blue-background {
+            background-color: #1d83ff;
+            padding: 20px;
+            border-radius: 100px;
+            height: auto; /* Adjust height to fit content */
+            width: 70%; /* Adjust width as needed */
+            max-width: 1000px; /* Adjust max-width as needed */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto; /* Enable vertical scrolling within .blue-background */
+        }
+
+        #login-container {
+            background-color: #CFBAE1;
+            padding: 20px;
+            border-radius: 100px;
+            width: 100%;
+            max-width: 600px; /* Adjust max-width as needed */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #login-form {
+            width: 100%;
+            max-width: 400px; /* Adjust max-width as needed */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #login-form label {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #login-form input {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 300px; /* Adjust max-width as needed */
+        }
+
+        #login-button {
+            margin-top: 20px;
+            padding: 12px;
+            border: none;
+            border-radius: 20px;
+            background-color: #B7245C;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px; /* Adjust max-width as needed */
+            text-align: center;
+        }
+
+        #login-button:hover {
+            background-color: #F5FFC6;
+            color: black;
+        }
+
+        #login-message {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #register-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #register-link a {
+            color: white;
+            text-decoration: none;
+        }
+
+        #register-link a:hover {
+            text-decoration: underline;
+        }
+
+        img {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+            margin-top: 0px; /* Example margin top for the image */
+            max-height: 300px; /* Example max-height for the image */
+        }
+    </style>
+</head>
+<body>
+    <div class="center-container">
+        <div class="blue-background">
+            <img src="static/l.png" alt="Logo">
+            <div id="login-container">
+                <form id="login-form" method="post">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                    <label for="password">Parolă</label>
+                    <input type="password" id="password" name="password" required>
+                    <button type="submit" id="login-button">Loghează-te</button>
+                </form>
+                <p id="login-message" style="display: none;">You are already logged in.</p>
+                <div id="register-link">
+                    <p>Nu ai încă cont? <a href="{{ url_for('signup') }}"style="hover:color:"blue" ">Înregistrează-te</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loginUser() {
+            const formData = new FormData(document.getElementById('login-form'));
+            const response = await fetch('{{ url_for("login") }}', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (result.success) {
+                window.location.href = '/students';
+            } else {
+                alert(result.message);
+            }
+        }
+
+        document.getElementById('login-form').onsubmit = function(event) {
+            event.preventDefault();
+            loginUser();
+        };
+
+        window.onload = async function() {
+            const response = await fetch('{{ url_for("session_status") }}');
+            const data = await response.json();
+            if (data.logged_in) {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('login-message').style.display = 'block';
+                document.getElementById('login-button').style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>

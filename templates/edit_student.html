@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Edit Student</h2>
+<form method="post">
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" value="{{ student[1] }}" required>
+    <label for="age">Age</label>
+    <input type="number" id="age" name="age" value="{{ student[2] }}" required>
+    <label for="grade">Grade</label>
+    <input type="text" id="grade" name="grade" value="{{ student[3] }}" required>
+    <button type="submit">Save</button>
+</form>
+{% endblock %}

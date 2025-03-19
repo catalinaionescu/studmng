@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+.student-list {
+        list-style-type: none;
+        padding: 0;
+        font-family: "Noto Sans Lisu", sans-serif;
+    }
+
+    .student-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding: 10px 20px; /* Adjusted padding */
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+        border-radius: 50px;
+    }
+
+    .student-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .student-actions {
+        display: flex;
+        align-items: center; /* Align items vertically */
+        gap: 10px;
+    }
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+        color:black;
+    }
+
+    .pagination a, .pagination span {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        text-decoration: none;
+        background-color:pink;
+        border-radius: 40px;
+        color:black;
+    }
+
+    .pagination .active {
+        font-weight: bold;
+        background-color: #2B4162;
+        color: white;
+    }
+
+    .sort-link {
+        color: #3D2C2E;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .sort-link:hover {
+        text-decoration: underline;
+    }
+
+    .error-message {
+        color: red;
+        font-size: 0.9em;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    h2{
+    text-align:center;
+    font-size:50px;
+    padding-bottom:50px;
+    padding-top:50px;
+    }
+        #searchForm select,
+    #searchForm input[type="text"] {
+        padding: 10px; /* Increased padding for input and select */
+        font-size: 16px; /* Increased font size */
+        border-radius: 20px; /* Rounded corners */
+        border: 1px solid #ccc;
+    }
+
+    #searchForm button {
+        padding: 10px 20px; /* Increased padding for button */
+        font-size: 16px; /* Increased font size */
+        border-radius: 15px; /* Rounded corners */
+        border: none;
+        background-color: #291711;
+        color: white;
+        cursor: pointer;
+    }
+</style>
+
+<h2>Listă Studenți</h2>
+
+<form id="searchForm" method="GET" action="{{ url_for('students') }}">
+    <select name="search_field">
+        <option value="none" {% if search_field == 'none' %}selected{% endif %}>--</option>
+        <option value="nume" {% if search_field == 'nume' %}selected{% endif %}>Nume</option>
+        <option value="prenume" {% if search_field == 'prenume' %}selected{% endif %}>Prenume</option>
+        <option value="facultatea" {% if search_field == 'facultatea' %}selected{% endif %}>Facultatea</option>
+        <option value="specializarea" {% if search_field == 'specializarea' %}selected{% endif %}>Specializarea</option>
+        <option value="an" {% if search_field == 'an' %}selected{% endif %}>An</option>
+        <option value="grupa" {% if search_field == 'grupa' %}selected{% endif %}>Grupă</option>
+        <option value="data_nasterii" {% if search_field == 'data_nasterii' %}selected{% endif %}>Data nașterii</option>
+        <option value="cnp" {% if search_field == 'cnp' %}selected{% endif %}>CNP</option>
+        <option value="numar_de_telefon" {% if search_field == 'numar_de_telefon' %}selected{% endif %}>Număr de telefon</option>
+        <option value="email" {% if search_field == 'email' %}selected{% endif %}>Email</option>
+        <option value="adresa" {% if search_field == 'adresa' %}selected{% endif %}>Adresă</option>
+        <option value="cetatenie" {% if search_field == 'cetatenie' %}selected{% endif %}>Cetățenie</option>
+        <option value="etnie" {% if search_field == 'etnie' %}selected{% endif %}>Etnie</option>
+    </select>
+    <input type="text" name="query" placeholder="Caută studenți..." value="{{ query }}">
+    <button type="submit" class="btn btn-primary">Căutare</button>
+</form>
+<br><br>
+<div class="sort-options">
+    <a href="{{ url_for('students', sort_field='nume', sort_order='asc' if sort_order == 'desc' else 'desc', search_field=search_field, query=query, page=current_page) }}" class="sort-link">Nume {% if sort_field == 'nume' %}{{ '↑' if sort_order == 'asc' else '↓' }}{% endif %}</a> |
+    <a href="{{ url_for('students', sort_field='prenume', sort_order='asc' if sort_order == 'desc' else 'desc', search_field=search_field, query=query, page=current_page) }}" class="sort-link">Prenume {% if sort_field == 'prenume' %}{{ '↑' if sort_order == 'asc' else '↓' }}{% endif %}</a>
+</div>
+
+<ul class="student-list">
+    {% for student in students %}
+    <li class="student-item">
+        <div class="student-details">
+            <p><strong>{{ student['nume'] }} {{ student['prenume'] }}</strong></p>
+            <p>CNP: {{ student['cnp'] }}</p>
+        </div>
+        <div class="student-actions">
+            <a href="{{ url_for('student_details', id=student['id']) }}" class="btn btn-primary">Vezi detalii</a>
+            <form method="post" action="{{ url_for('delete_student', id=student['id']) }}">
+                <button type="submit" class="btn btn-danger">Șterge</button>
+            </form>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+<!-- Pagination Controls -->
+<div class="pagination">
+    {% if total_pages == 1 %}
+    <span class="active">1</span>
+    {% elif total_pages > 1 %}
+    <a href="{{ url_for('students', page=1, search_field=search_field, query=query) }}">Prima</a>
+
+    {% if current_page > 1 %}
+    <a href="{{ url_for('students', page=current_page-1, search_field=search_field, query=query) }}">{{ current_page-1 }}</a>
+    {% endif %}
+
+    <span class="active">{{ current_page }}</span>
+
+    {% if current_page < total_pages %}
+    <a href="{{ url_for('students', page=current_page+1, search_field=search_field, query=query) }}">{{ current_page+1 }}</a>
+    {% endif %}
+
+    {% if total_pages > 2 %}
+    <a href="{{ url_for('students', page=total_pages, search_field=search_field, query=query) }}">Ultima</a>
+    {% endif %}
+    {% endif %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+{% endblock %}

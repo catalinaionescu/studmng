@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Adaugă Student</h2>
+
+<form id="addStudentForm" method="POST" enctype="multipart/form-data">
+    <div>
+        <label for="nume">Nume:</label>
+        <input type="text" id="nume" name="nume" required>
+    </div>
+    <div>
+        <label for="prenume">Prenume:</label>
+        <input type="text" id="prenume" name="prenume" required>
+    </div>
+    <div>
+        <label for="facultatea">Facultatea:</label>
+        <input type="text" id="facultatea" name="facultatea" required>
+    </div>
+    <div>
+        <label for="specializarea">Specializarea:</label>
+        <input type="text" id="specializarea" name="specializarea" required>
+    </div>
+    <div>
+        <label for="an">An:</label>
+        <input type="number" id="an" name="an" required>
+    </div>
+    <div>
+        <label for="grupa">Grupa:</label>
+        <input type="text" id="grupa" name="grupa" required>
+    </div>
+    <div>
+        <label for="data_nasterii">Data Nașterii:</label>
+        <input type="date" id="data_nasterii" name="data_nasterii" required>
+    </div>
+    <div>
+        <label for="cnp">CNP:</label>
+        <input type="text" id="cnp" name="cnp" required>
+    </div>
+    <div>
+        <label for="numar_de_telefon">Număr de Telefon:</label>
+        <input type="text" id="numar_de_telefon" name="numar_de_telefon" required>
+    </div>
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    <div>
+        <label for="adresa">Adresă:</label>
+        <input type="text" id="adresa" name="adresa" required>
+    </div>
+    <div>
+        <label for="cetatenie">Cetățenie:</label>
+        <input type="text" id="cetatenie" name="cetatenie" required>
+    </div>
+    <div>
+        <label for="etnie">Etnie:</label>
+        <input type="text" id="etnie" name="etnie" required>
+    </div>
+    <div>
+        <label for="poza">Poză:</label>
+        <input type="file" id="poza" name="poza">
+    </div>
+    <button type="submit">Adaugă</button>
+</form>
+
+<script>
+    document.getElementById('addStudentForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        }).then(response => response.json()).then(result => {
+            if (result.success) {
+                window.location.href = '{{ url_for("students") }}';
+            } else {
+                for (const [field, message] of Object.entries(result.errors)) {
+                    document.getElementById(`${field}_error`).textContent = message;
+                }
+            }
+        }).catch(error => console.error('Error adding student:', error));
+    });
+</script>
+{% endblock %}

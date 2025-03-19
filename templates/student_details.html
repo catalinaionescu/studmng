@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ student.nume }} {{ student.prenume }} - Detalii student</title>
+    <style>
+        /* Styling for modal and background blur */
+        .modal-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+            backdrop-filter: blur(8px); /* Blur effect */
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 50px;
+            max-width: 60%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+            width: 700px;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; /* Remove default margin */
+            background-color: #f8f9fa;
+            padding-top: 60px; /* Adjust this value if the navbar height changes */
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background-color: #ce96a6;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            box-sizing: border-box;
+        }
+
+        .navbar a {
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 500;
+            border-radius: 5px;
+            transition: color 0.3s ease;
+            background-color: #ce96a6; /* Same color as navbar */
+            border: none; /* No border */
+            cursor: pointer;
+        }
+
+        .navbar a:hover {
+            color: black;
+        }
+
+        .navbar .user-greeting {
+            color: white;
+            font-size: 25px;
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+
+        .navbar .left-links {
+            display: flex;
+            align-items: center;
+            padding-right: 30px;
+        }
+
+        .navbar .right-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .links a {
+            margin-left: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 50px;
+            padding-bottom: 20px;
+            padding-top: 50px;
+        }
+
+        .student-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .student-photo {
+            display: block;
+            margin: 0 auto 30px;
+            border-radius: 20px;
+            height: 150px; /* Slightly larger */
+            width: auto;
+        }
+
+        .student-details {
+            list-style-type: none;
+            padding: 0;
+            width: 100%;
+        }
+
+        .student-details li {
+            margin: 10px 10px;
+            padding: 10px;
+            padding-left: 10px;
+            padding-right: 20px;
+            background-color: #f1f1f1;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-details li strong {
+            font-weight: bold;
+            padding-left: 10px;
+        }
+
+        .student-details li span {
+            margin-left: 20px; /* Indent non-bold text */
+        }
+
+        button {
+            margin: 20px 0;
+            padding: 20px 20px;
+            font-size: 16px;
+            background-color: #ce96a6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #b38293;
+        }
+
+        a {
+            color: #ce96a6;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .custom-file-input-container {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center align file input */
+            margin-bottom: 20px; /* Add space below file input */
+        }
+
+        .custom-file-input {
+            width: 100%;
+            max-width: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .custom-file-input input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+        }
+
+        .custom-file-input::before {
+            content: attr(data-filename);
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        /* Center and style the form */
+        .edit-form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .edit-form-container label,
+        .edit-form-container input {
+            display: block;
+            width: 100%;
+            max-width: 500px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .edit-form-container input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .edit-form-container input:focus {
+            border-color: #ce96a6;
+            outline: none;
+            box-shadow: 0 0 5px rgba(206, 150, 166, 0.5);
+        }
+
+        .edit-form-container label {
+            text-align: center; /* Align labels to the left */
+            margin-left: auto; /* Center-align labels by giving them auto margin */
+            margin-right: auto; /* Center-align labels by giving them auto margin */
+            width: 100%; /* Make labels span the full width of the container */
+            max-width: 500px; /* Ensure labels do not exceed the width of input fields */
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="left-links">
+            <div class="user-greeting" style="padding-right: 20px">Bună, {{username}}!</div>
+            <a href="{{ url_for('students') }}">Studenți</a>
+        </div>
+        <div class="right-links">
+            <a href="{{ url_for('logout') }}">Deconectare</a>
+        </div>
+    </div>
+
+    <div class="student-info">
+        <h1>{{ student.nume }} {{ student.prenume }}</h1>
+        
+        {% if student.poza %}
+        <img class="student-photo" id="studentPoza" src="{{ url_for('static', filename='uploads/' + student.poza) }}">
+        {% endif %}
+        <a href="{{ url_for('students') }}" style="margin-bottom: 20px; display: inline-block; font-size: 20px; text-decoration: underline;">Înapoi la studenți</a>
+        <ul class="student-details" id="studentDetails">
+            <li><strong>Nume:</strong> <span id="studentNume">{{ student.nume }}</span></li>
+            <li><strong>Prenume:</strong> <span id="studentPrenume">{{ student.prenume }}</span></li>
+            <li><strong>Facultate:</strong> <span id="studentFacultatea">{{ student.facultatea }}</span></li>
+            <li><strong>Specializare:</strong> <span id="studentSpecializarea">{{ student.specializarea }}</span></li>
+            <li><strong>An:</strong> <span id="studentAn">{{ student.an }}</span></li>
+            <li><strong>Grupă:</strong> <span id="studentGrupa">{{ student.grupa }}</span></li>
+            <li><strong>Data nașterii:</strong> <span id="studentDataNasterii">{{ student.data_nasterii }}</span></li>
+            <li><strong>CNP:</strong> <span id="studentCNP">{{ student.cnp }}</span></li>
+            <li><strong>Număr de telefon:</strong> <span id="studentNumarDeTelefon">{{ student.numar_de_telefon }}</span></li>
+            <li><strong>Email:</strong> <span id="studentEmail">{{ student.email }}</span></li>
+            <li><strong>Adresa:</strong> <span id="studentAdresa">{{ student.adresa }}</span></li>
+            <li><strong>Cetățenie:</strong> <span id="studentCetatenie">{{ student.cetatenie }}</span></li>
+            <li><strong>Etnie:</strong> <span id="studentEtnie">{{ student.etnie }}</span></li>
+        </ul>
+
+        <button onclick="toggleEditStudentModal()">Editare Student</button>
+    </div>
+    
+    <!-- Edit Student Modal -->
+    <div class="modal-container" id="editStudentModal">
+        <div class="modal-content">
+            <span class="close" onclick="toggleEditStudentModal()">&times;</span>
+            <h2 style="text-align:center;">Editează Student</h2>
+            <form id="editStudentForm" method="post" action="{{ url_for('edit_student', id=student.id) }}" enctype="multipart/form-data" class="edit-form-container">
+                <label for="nume">Nume:</label>
+                <input type="text" id="nume" name="nume" value="{{ student.nume }}" required>
+                
+                <label for="prenume">Prenume:</label>
+                <input type="text" id="prenume" name="prenume" value="{{ student.prenume }}" required>
+                
+                <label for="facultatea">Facultate:</label>
+                <input type="text" id="facultatea" name="facultatea" value="{{ student.facultatea }}" required>
+                
+                <label for="specializarea">Specializare:</label>
+                <input type="text" id="specializarea" name="specializarea" value="{{ student.specializarea }}" required>
+                
+                <label for="an">An:</label>
+                <input type="number" id="an" name="an" value="{{ student.an }}" required>
+                
+                <label for="grupa">Grupă:</label>
+                <input type="text" id="grupa" name="grupa" value="{{ student.grupa }}" required>
+                
+                <label for="data_nasterii">Data nașterii:</label>
+                <input type="date" id="data_nasterii" name="data_nasterii" value="{{ student.data_nasterii }}" required>
+                
+                <label for="cnp">CNP:</label>
+                <input type="text" id="cnp" name="cnp" value="{{ student.cnp }}" required>
+                
+                <label for="numar_de_telefon">Număr de telefon:</label>
+                <input type="text" id="numar_de_telefon" name="numar_de_telefon" value="{{ student.numar_de_telefon }}" required>
+                
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ student.email }}" required>
+                
+                <label for="adresa">Adresă:</label>
+                <input type="text" id="adresa" name="adresa" value="{{ student.adresa }}" required>
+                
+                <label for="cetatenie">Cetățenie:</label>
+                <input type="text" id="cetatenie" name="cetatenie" value="{{ student.cetatenie }}" required>
+                
+                <label for="etnie">Etnie:</label>
+                <input type="text" id="etnie" name="etnie" value="{{ student.etnie }}" required>
+                
+                <label for="photo" style="padding-bottom: 0px;">Fotografie:</label>
+                <br><br>
+                <div class="custom-file-input-container">
+                    <div class="custom-file-input" id="fileInputContainer" data-filename="Alege un fișier...">
+                        <input type="file" id="poza" name="poza" accept="image/*" onchange="updateFileName()">
+                    </div>
+                </div>
+                <br><br>
+                
+                <button type="submit">Salvează schimbările</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function toggleEditStudentModal() {
+            var modal = document.getElementById("editStudentModal");
+            modal.style.display = modal.style.display === "flex" ? "none" : "flex";
+        }
+
+        function updateFileName() {
+            var input = document.getElementById("poza");
+            var fileName = input.files[0].name;
+            var maxLength = 50;
+
+            if (fileName.length > maxLength) {
+                var extension = fileName.substring(fileName.lastIndexOf('.'));
+                var baseName = fileName.substring(0, maxLength - extension.length - 3);
+                fileName = baseName + '...' + extension;
+            }
+
+            var fileInputContainer = document.getElementById("fileInputContainer");
+            fileInputContainer.setAttribute('data-filename', fileName);
+        }
+    </script>
+</body>
+</html>
