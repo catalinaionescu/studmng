@@ -3,7 +3,7 @@ Student Management Web Application
 
 Overview
 
-A full-featured web application for managing student records in an academic environment. Built using Flask (Python), this project allows users to securely register, log in, and manage student information through a clean and responsive web interface. The system includes CRUD operations, dynamic search and sort features, pagination, and file upload capabilities.
+A full-featured student management system created as part of a university project. Developed using Flask (Python) and documented in Romanian, the application provides a secure and intuitive platform for handling student records. It includes user authentication, CRUD operations, file uploads, and dynamic search capabilities.
 
 Key Features
 
